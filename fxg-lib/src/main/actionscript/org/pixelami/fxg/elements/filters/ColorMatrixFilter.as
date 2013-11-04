@@ -27,7 +27,7 @@ package org.pixelami.fxg.elements.filters
 		
 		public function ColorMatrixFilter()
 		{
-			
+			super();
 		}
 		
 		/**
@@ -43,14 +43,6 @@ package org.pixelami.fxg.elements.filters
 			_matrix = value;
 		}
 
-		
-		public function ColorMatrixFilter()
-		{
-			super();
-		}
-		
-		
-		
 		override public function getFilter():*
 		{
 			var m:Array = [];

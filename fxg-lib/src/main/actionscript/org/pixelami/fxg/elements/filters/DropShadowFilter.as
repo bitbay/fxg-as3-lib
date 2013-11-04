@@ -22,6 +22,11 @@ package org.pixelami.fxg.elements.filters
 		private var _inner:Boolean = false;
 		private var _hideObject:Boolean = false;
 		
+		public function DropShadowFilter()
+		{
+			super();
+		}
+		
 		/**
 		 * The distance between each pixel in the source and its corresponding shadow in the output.
 		 */

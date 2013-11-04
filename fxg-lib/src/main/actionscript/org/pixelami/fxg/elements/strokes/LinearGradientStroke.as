@@ -13,9 +13,9 @@ package org.pixelami.fxg.elements.strokes
 {
 	import flash.display.GradientType;
 	import flash.display.Graphics;
+	import flash.geom.Matrix;
 	
 	import org.pixelami.fxg.elements.fills.GradientEntry;
-	import org.pixelami.fxg.elements.transforms.Matrix;
 	import org.pixelami.fxg.utils.FXGUtil;
 
 	[DefaultProperty("entries")]
@@ -167,7 +167,7 @@ package org.pixelami.fxg.elements.strokes
 		override public function doStroke(value:Graphics):void
 		{
 			var o:Object = FXGUtil.getColorsAlphasRatiosFromGradientEntries(entries);
-			value.lineGradientStyle(GradientType.LINEAR,o.colors,o.alphas,o.ratios,matrix.getMatrix(),spreadMethod,interpolationMethod,focalPointRatio);
+			value.lineGradientStyle(GradientType.LINEAR,o.colors,o.alphas,o.ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio);
 		}
 				
 

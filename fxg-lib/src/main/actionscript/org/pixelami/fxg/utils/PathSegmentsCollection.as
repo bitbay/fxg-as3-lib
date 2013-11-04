@@ -19,7 +19,7 @@ package org.pixelami.fxg.utils
 	import flash.display.GraphicsPath;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
-
+	
 	public class PathSegmentsCollection
 	{
 		//--------------------------------------------------------------------------
@@ -687,8 +687,6 @@ import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
-import mx.utils.MatrixUtil;
-
 /**
  *  The LineSegment draws a line from the current pen position to the coordinate located at x, y.
  *  
@@ -700,6 +698,8 @@ import mx.utils.MatrixUtil;
  */
 class LineSegment extends PathSegment
 {
+	
+	private var staticPoint:Point = new Point();
 	
 	//--------------------------------------------------------------------------
 	//
@@ -756,6 +756,7 @@ class LineSegment extends PathSegment
 	override public function getBoundingBox(prev:PathSegment, sx:Number, sy:Number, m:Matrix, rect:Rectangle):Rectangle
 	{
 		pt = MatrixUtil.transformPoint(x * sx, y * sy, m);
+		
 		var x1:Number = pt.x;
 		var y1:Number = pt.y;
 		
@@ -869,8 +870,6 @@ import flash.display.GraphicsPath;
 import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
-
-import mx.utils.MatrixUtil;
 
 /**
  *  The CubicBezierSegment draws a cubic bezier curve from the current pen position 
@@ -1245,8 +1244,6 @@ import flash.geom.Matrix;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
-import mx.utils.MatrixUtil;
-
 /**
  *  The QuadraticBezierSegment draws a quadratic curve from the current pen position 
  *  to x, y. 
@@ -1425,5 +1422,132 @@ class QuadraticBezierSegment extends PathSegment
 	{
 		return MatrixUtil.getQBezierSegmentBBox(prev ? prev.x : 0, prev ? prev.y : 0,
 			control1X, control1Y, x, y, sx, sy, m, rect);
+	}
+}
+
+//--------------------------------------------------------------------------
+//
+//  Internal Helper Class - MatrixUtil 
+//
+//--------------------------------------------------------------------------
+final class MatrixUtil
+{
+	private static var staticPoint:Point = new Point();
+	/**
+	 *  Returns a static Point object with the result.
+	 *  If matrix is null, point is untransformed. 
+	 */
+	static public function transformPoint(x:Number, y:Number, m:Matrix):Point
+	{
+		if (!m)
+		{
+			staticPoint.x = x;
+			staticPoint.y = y;
+			return staticPoint;
+		}
+		
+		staticPoint.x = m.a * x + m.c * y + m.tx;
+		staticPoint.y = m.b * x + m.d * y + m.ty;
+		return staticPoint;
+	}
+	
+	/**
+	 *  @return Returns the union of <code>rect</code> and
+	 *  <code>Rectangle(left, top, right - left, bottom - top)</code>.
+	 *  Note that if rect is non-null, it will be updated to reflect the return value.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
+	 */
+	static public function rectUnion(left:Number, top:Number, right:Number, bottom:Number, rect:Rectangle):Rectangle
+	{
+		if (!rect)
+			return new Rectangle(left, top, right - left, bottom - top);
+		
+		var minX:Number = Math.min(rect.left,   left);
+		var minY:Number = Math.min(rect.top,    top);
+		var maxX:Number = Math.max(rect.right,  right);
+		var maxY:Number = Math.max(rect.bottom, bottom);
+		
+		rect.x      = minX;
+		rect.y      = minY;
+		rect.width  = maxX - minX;
+		rect.height = maxY - minY;
+		return rect;
+	}
+	
+	/**
+	 *  @param x0 x coordinate of the first control point
+	 *  @param y0 y coordinate of the first control point
+	 *  @param x1 x coordinate of the second control point
+	 *  @param y1 y coordinate of the second control point
+	 *  @param x2 x coordinate of the third control point
+	 *  @param y2 y coordinate of the third control point
+	 *  @param sx The pre-transform scale factor for x coordinates.
+	 *  @param sy The pre-transform scale factor for y coordinates.
+	 *  @param matrix The transformation matrix. Can be null for identity transformation.
+	 *  @param rect If non-null, rect will be updated to the union of rect and
+	 *  the segment bounding box.
+	 *  @return Returns the union of the post-transformed quadratic
+	 *  bezier segment's axis aligned bounding box and the passed in rect.
+	 *  
+	 *  @langversion 3.0
+	 *  @playerversion Flash 9
+	 *  @playerversion AIR 1.1
+	 *  @productversion Flex 3
+	 */	
+	static public function getQBezierSegmentBBox(x0:Number, y0:Number,
+												 x1:Number, y1:Number,
+												 x2:Number, y2:Number,
+												 sx:Number, sy:Number,
+												 matrix:Matrix,
+												 rect:Rectangle):Rectangle
+	{
+		var pt:Point;
+		pt = MatrixUtil.transformPoint(x0 * sx, y0 * sy, matrix);
+		x0 = pt.x;
+		y0 = pt.y;
+		
+		pt = MatrixUtil.transformPoint(x1 * sx, y1 * sy, matrix);
+		x1 = pt.x;
+		y1 = pt.y;
+		
+		pt = MatrixUtil.transformPoint(x2 * sx, y2 * sy, matrix);
+		x2 = pt.x;
+		y2 = pt.y;
+		
+		var minX:Number = Math.min(x0, x2);
+		var maxX:Number = Math.max(x0, x2);
+		
+		var minY:Number = Math.min(y0, y2);
+		var maxY:Number = Math.max(y0, y2);
+		
+		var txDiv:Number = x0 - 2 * x1 + x2;
+		if (txDiv != 0)
+		{
+			var tx:Number = (x0 - x1) / txDiv;
+			if (0 <= tx && tx <= 1)
+			{
+				var x:Number = (1 - tx) * (1 - tx) * x0 + 2 * tx * (1 - tx) * x1 + tx * tx * x2;
+				minX = Math.min(x, minX);
+				maxX = Math.max(x, maxX);
+			}  
+		}
+		
+		var tyDiv:Number = y0 - 2 * y1 + y2;
+		if (tyDiv != 0)
+		{
+			var ty:Number = (y0 - y1) / tyDiv;
+			if (0 <= ty && ty <= 1)
+			{
+				var y:Number = (1 - ty) * (1 - ty) * y0 + 2 * ty * (1 - ty) * y1 + ty * ty * y2;
+				minY = Math.min(y, minY);
+				maxY = Math.max(y, maxY);
+			}  
+		}
+		
+		return rectUnion(minX, minY, maxX, maxY, rect);
 	}
 }

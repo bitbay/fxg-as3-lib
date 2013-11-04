@@ -15,6 +15,11 @@ package org.pixelami.fxg.elements.filters
 	{
 		private var _quality:Number = 2;
 		
+		public function FXGFilter()
+		{
+			
+		}
+		
 		/**
 		 * The quality of the rendered effect.
 		 */
@@ -32,6 +37,7 @@ package org.pixelami.fxg.elements.filters
 		{
 			return null;
 		}
+		
 		private var _element:XML;
 		public function set element(value:XML):void
 		{

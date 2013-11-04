@@ -20,10 +20,11 @@ package org.pixelami.fxg.elements.filters
 		private var _quality:Number;
 		
 		
-		public function BluerFilter()
+		public function BlurFilter()
 		{
-			
+			super();
 		}
+		
 		/**
 		 * The amount of blur applied to the rendered content in the horizontal.
 		 */

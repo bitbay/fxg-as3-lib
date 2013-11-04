@@ -27,7 +27,12 @@ package org.pixelami.fxg.elements.filters
 	{
 		
 		private var _entries:Vector.<GradientEntry>;
-
+		
+		public function GradientGlowFilter()
+		{
+			super();
+		}
+		
 		public function get entries():Vector.<GradientEntry>
 		{
 			return _entries;

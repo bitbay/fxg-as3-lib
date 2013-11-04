@@ -19,6 +19,10 @@ package org.pixelami.fxg.elements.filters
 		private var _strength:Number;
 		private var _type:String;
 		
+		public function FXGStandardFilterBase()
+		{
+			super();
+		}
 		
 		/**
 		 * The angle of the generated bevel. This angle is expressed in document coordinate space.
